@@ -295,7 +295,7 @@ class OllamaHandler():
             dict: JSON parseado con campo 'response' garantizado
         """
         parse_response = ""
-        parse_response = re.search(r'\{.*?\}', response, re.DOTALL)
+        parse_response = re.search(r'\{.*\}', response, re.DOTALL)
         if parse_response:
             parse_response = parse_response.group()
             parse_response = parse_response.lower()
@@ -337,7 +337,7 @@ class OllamaHandler():
         #Split if real_response can have different options for example if the model answer with d and option d is Spain you can have d | spain
         possible_answers = possible_answers.split("|")
         for answer in possible_answers:
-            if answer in response:
+            if re.search(r'\b' + re.escape(answer) + r'\b', response):
                 #Debug
                 self.log.warning_color(f"Si, la respuesta: {answer} se encuentra en {response}")
                 return 1
