@@ -10,3 +10,5 @@ dockerfile
 prometheus-*
 prometheus.yml
 data/
+experiment_results/
+logger/logs.txt

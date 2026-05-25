@@ -1,3 +1,2 @@
-orca-mini
-tinyllama
-phi3
+gemma3:270m
+qwen3.5:0.8b
