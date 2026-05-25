@@ -6,7 +6,7 @@ from logger.log import logger
 from dateutil import parser
 EXECUTION_PATH = os.path.dirname(os.path.realpath(__file__))
 METRICS_PATH = f"{EXECUTION_PATH}/../metrics"
-EXPORT_METRICS = "timestamp;total_duration;load_duration;prompt_eval_count;prompt_eval_duration;eval_count;eval_duration;model"
+EXPORT_METRICS = "timestamp;total_duration;load_duration;ttft_duration;prompt_eval_count;prompt_eval_duration;eval_count;eval_duration;model"
 
 class OllamaHandler():
     """
@@ -367,10 +367,9 @@ class OllamaHandler():
             parsed_prompt += self.parse_user_prompt(prompt)
 
             self.log.debug_color(f"processing prompt: {prompt}")
-            response = self.ollama.single_prompt(model, prompt)
+            response, data = self.ollama.single_prompt_with_ttft(model, prompt)
             self.log.debug_color("Prompt processed")
             if response.status_code == 200:
-                data = response.json()
                 parsed_prompt += self.parse_assistant_prompt(data)
 
                 if "{E}" in prompt:
@@ -379,7 +378,7 @@ class OllamaHandler():
 
                 self.write_metrics(self.extract_metrics(data))
                 self.save_response(prompt, data.get('response'), model)
-                print(json.dumps(response.json(), indent = 4)) #debugging purposes
+                print(json.dumps(data, indent = 4)) #debugging purposes
                 
             else:
                 self.log.warning_color(f"!!ERROR, model {model}, failed processing prompt: {prompt}\nReason: {response.reason}\nBody:{response.text}")

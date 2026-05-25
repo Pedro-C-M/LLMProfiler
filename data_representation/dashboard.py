@@ -172,12 +172,18 @@ def display_general_info(file_path: str):
 def process_model_metrics(ollama_df: pd.DataFrame, score_df: pd.DataFrame) -> pd.DataFrame:
     """Process and combine model metrics for analysis"""
     # Convert nanoseconds to seconds for duration columns
-    duration_cols = ['total_duration', 'load_duration', 'prompt_eval_duration', 'eval_duration']
+    duration_cols = [
+            'total_duration',
+            'load_duration',
+            'ttft_duration',
+            'prompt_eval_duration',
+            'eval_duration',
+        ]
     ollama_processed = ollama_df.copy()
 
     for col in duration_cols:
         if col in ollama_processed.columns:
-            ollama_processed[col] = ollama_processed[col] / 1e9  # Convert to seconds
+            ollama_processed[col] = pd.to_numeric(ollama_processed[col], errors='coerce') / 1e9 # Convertir medida de tiempo 
 
     # Calculate derived metrics
     ollama_processed['response_time'] = (
@@ -191,22 +197,21 @@ def process_model_metrics(ollama_df: pd.DataFrame, score_df: pd.DataFrame) -> pd
     )
 
     # Aggregate by model
-    model_stats = (
-        ollama_processed.groupby('model')
-        .agg(
-            {
-                'total_duration': ['mean', 'std', 'count'],
-                'response_time': ['mean', 'std'],
-                'eval_duration': ['mean', 'std'],
-                'load_duration': ['mean'],
-                'tokens_per_second': ['mean', 'std'],
-                'prompt_tokens_per_second': ['mean'],
-                'eval_count': ['mean', 'sum'],
-                'prompt_eval_count': ['mean'],
-            }
-        )
-        .round(3)
-    )
+    aggregation = {
+        'total_duration': ['mean', 'std', 'count'],
+        'response_time': ['mean', 'std'],
+        'eval_duration': ['mean', 'std'],
+        'load_duration': ['mean'],
+        'tokens_per_second': ['mean', 'std'],
+        'prompt_tokens_per_second': ['mean'],
+        'eval_count': ['mean', 'sum'],
+        'prompt_eval_count': ['mean'],
+    }
+    if 'ttft_duration' in ollama_processed.columns:
+        aggregation['ttft_duration'] = ['mean', 'std']
+
+    model_stats = ollama_processed.groupby('model').agg(aggregation).round(3)
+
 
     # Flatten column names
     model_stats.columns = ['_'.join(col).strip() for col in model_stats.columns]
@@ -2108,20 +2113,22 @@ def main():
                     model_families.append(family)
                     model_sizes.append(f"{size}B")
 
-                summary_df = pd.DataFrame(
-                    {
-                        'Model': model_stats['model'],
-                        'Family': model_families,
-                        'Size': model_sizes,
-                        'Quality Score': model_stats.get('Score', [0] * len(model_stats)),
-                        'Avg Response Time (s)': model_stats['response_time_mean'],
-                        'Tokens/Second': model_stats['tokens_per_second_mean'],
-                        'Total Requests': model_stats['total_duration_count'],
-                        'Consistency (1/std)': (
-                            1 / (model_stats['response_time_std'] + 0.001)
-                        ).round(2),
-                    }
-                )
+                summary_data = {
+                    'Model': model_stats['model'],
+                    'Family': model_families,
+                    'Size': model_sizes,
+                    'Quality Score': model_stats.get('Score', [0] * len(model_stats)),
+                    'Avg Response Time (s)': model_stats['response_time_mean'],
+                    'Tokens/Second': model_stats['tokens_per_second_mean'],
+                    'Total Requests': model_stats['total_duration_count'],
+                    'Consistency (1/std)': (
+                        1 / (model_stats['response_time_std'] + 0.001)
+                    ).round(2),
+                }
+                if 'ttft_duration_mean' in model_stats.columns:
+                    summary_data['Avg TTFT (s)'] = model_stats['ttft_duration_mean']
+
+                summary_df = pd.DataFrame(summary_data)
 
                 # Add disk metrics if available
                 if not model_disk_stats.empty:
@@ -2157,6 +2164,9 @@ def main():
                 summary_df['Quality Score'] = summary_df['Quality Score'].round(2)
                 summary_df['Avg Response Time (s)'] = summary_df['Avg Response Time (s)'].round(2)
                 summary_df['Tokens/Second'] = summary_df['Tokens/Second'].round(1)
+
+                if 'Avg TTFT (s)' in summary_df.columns:
+                    summary_df['Avg TTFT (s)'] = summary_df['Avg TTFT (s)'].round(3)
 
                 if 'Avg Disk Reads/sec' in summary_df.columns:
                     summary_df['Avg Disk Reads/sec'] = summary_df['Avg Disk Reads/sec'].round(2)

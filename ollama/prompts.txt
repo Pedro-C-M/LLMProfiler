@@ -1,1 +1,6 @@
-hello\
+hello\;tell me a story
+{E} which is the capital of spain: 1xa) Barcelona, 1xb) brazil, 1xc) Madrid, 1xd) Extremadura, Respond only in JSON with the following format: {"response": "<literal response only, no context>"}
+{E} how much is 5 x 5, Respond only in JSON with the following format: {"response": "<literal response only, no context>"}
+{E} how much is 125 x 2, Respond only in JSON with the following format: {"response": "<literal response only, no context>"}
+{E} which pokemon is the main pokemon in Pokemon series: 1xa) Moltres, 1xb) Rampardos, 1xc) Pikachu, 1xd) Purloin,  Respond only in JSON with the following format: {"response": "<literal response only, no context>"}
+how is the weather today?

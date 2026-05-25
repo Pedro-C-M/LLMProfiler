@@ -1,4 +1,6 @@
 import requests
+import json
+import time
 
 class Ollama():
     """
@@ -82,6 +84,55 @@ class Ollama():
         )
 
         return response
+    
+    def single_prompt_with_ttft(self, model: str, prompt: str):
+        """
+        Ejecuta un prompt midiendo TTFT usando streaming.
+
+        Ollama solo entrega el primer token de forma observable cuando stream=True.
+        Se reconstruye la respuesta completa y se conserva el JSON final de Ollama
+        para mantener las métricas agregadas existentes, habría que repasar esto.
+        """
+        start_time = time.perf_counter_ns()
+        response = requests.post(
+            f"{self.url}/api/generate",
+            json={
+                "model": model,
+                "prompt": prompt,
+                "stream": True
+            },
+            stream=True
+        )
+
+        if response.status_code != 200:
+            return response, None
+
+        first_token_time = None
+        response_chunks = []
+        final_data = {}
+
+        for line in response.iter_lines(decode_unicode=True):
+            if not line:
+                continue
+
+            data = json.loads(line)
+            chunk = data.get("response", "")
+
+            if first_token_time is None and chunk:
+                first_token_time = time.perf_counter_ns()
+
+            response_chunks.append(chunk)
+
+            if data.get("done"):
+                final_data = data
+
+        final_data["response"] = "".join(response_chunks)
+        final_data["ttft_duration"] = (
+            first_token_time - start_time if first_token_time is not None else None
+        )
+
+        return response, final_data
+
     
     def pull_model(self, model: str) -> None:
         """
