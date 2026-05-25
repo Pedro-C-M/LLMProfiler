@@ -1,5 +1,8 @@
+import sys
+
 import click 
 import re
+import requests
 import os
 import paramiko
 import time
@@ -469,12 +472,29 @@ def validarIp(ctx,param,valor: str) -> str:
     
     return valor
 
+
+
+def check_ollama_version_exists(version: str) -> bool:
+    """
+    Comprueba contra la API de GitHub si la versión existe realmente.
+    Ya que de momento solo se comprueba que tiene formato de versión,
+    hay que comprobar que esta existe en el repositorio de Ollama.
+    """
+    url = f"https://api.github.com/repos/ollama/ollama/releases/tags/{version}"
+    try:
+        response = requests.get(url, timeout=5)
+        return response.status_code == 200
+    except requests.RequestException:
+        logger.warning_color(f"No se encontro la versión de Ollama \"{version}\" para descargar")
+        return True
+
 def validate_ollama_version(ctx,param,valor: str) -> str:
     """
-    Valida que la versión de Ollama especificada esté soportada.
-    
-    Verifica contra lista de versiones válidas cargada desde archivo
-    de configuración para garantizar compatibilidad del sistema.
+    Valida que la versión de Ollama especificada tenga formato válido.
+
+    Como no es sostenible mantener una lista de versiones compatibles de Ollama
+    se va a comprobar el formato de versión con expresiones regulares. 
+    El formato debe ser "vx.x.x" donde x es un número entero.
     
     Args:
         ctx: Contexto de Click (no utilizado)
@@ -485,14 +505,10 @@ def validate_ollama_version(ctx,param,valor: str) -> str:
         str: Versión validada
         
     Raises:
-        click.BadParameter: Si la versión no está soportada
+        click.BadParameter: Si la versión tiene formato inválido
     """
-    ollama_versions = ''
-    with open(f"{EXECUTION_PATH}/versions/ollama_versions.txt","r") as versions:
-        ollama_versions = [version.rstrip("\n") for version in versions]
-
-    if valor not in ollama_versions:
-        raise click.BadParameter(f"Error, version should be one of the followings: {ollama_versions}")
+    if not re.match(r"^v\d+\.\d+\.\d+$", valor):
+        raise click.BadParameter("La versión de Ollama debe tener formato vX.Y.Z, por ejemplo v0.11.4")
     
     return valor
 
@@ -525,7 +541,7 @@ def validate_node_exporter_version(ctx,param,valor: str) -> str:
 @click.option("--user", "-u", help="Name of the user to connect in target destination",default = "root")
 @click.option("--password", "-p",help="Password of the user to connect in target destination", default = "")
 @click.option("--ip-address", "-i", required=True, callback=validarIp, help="Ip-Address of the host where the test it's going to be executed")
-@click.option("--ollama-version", "-ov", callback=validate_ollama_version, help="ollama version to install in the SUT you must put the \"vx.x.x\"", default = "v0.7.0")
+@click.option("--ollama-version", "-ov", callback=validate_ollama_version, help="ollama version to install in the SUT you must put the \"vx.x.x\"", default = "v0.24.0")
 @click.option("--node-version", "-nv", callback=validate_node_exporter_version, help="node_exporter version to install in the SUT you must put the \"vx.x.x\"", default = "v1.9.1")
 @click.option("--private-key", "-pk", help="Path to private key(including the name) in .pem format for ssh authentication", default=f"{os.getenv('HOME')}/.ssh/id_rsa")
 @click.option("--reinstall-ollama", "-ro", is_flag=True, help="Force reinstallation of Ollama even if it's already installed", default=False)
@@ -552,6 +568,11 @@ def procesarLLM(ip_address: str, private_key: str, user: str, password: str, oll
     ssh = None
     ollama = None
     prometheus = None
+
+    logger.info_color(f"Verificando disponibilidad de la versión de Ollama: {ollama_version}")
+    if not check_ollama_version_exists(ollama_version):
+        logger.exception_color(f"Error: La versión {ollama_version} no existe en los repositorios oficiales de Ollama.")
+        sys.exit(1) # Quizás hay otra forma mejor de salir del sistema.
 
     try:
         ssh = connection_establishment(user, password, ip_address, private_key)
