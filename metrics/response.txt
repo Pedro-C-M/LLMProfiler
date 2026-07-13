@@ -1,94 +1,99 @@
 Model;Prompt;response
-Model: orca-mini;Prompt:hello;Response:  Hello! How may I assist you today?
-Model: orca-mini;Prompt:tell me a story
-;Response:  Once upon a time, in a far-off land, there lived a young girl named Lily. She had always been fascinated by the stories her grandmother told her about how she used to travel across the country long ago. One day, she decided to embark on a journey of her own, with no particular destination in mind.
+Model: gemma3:270m;Prompt:hello;Response: Hello! How can I help you today? 
 
-As she traveled, she met many different people and encountered various challenges. But she never lost her sense of wonder and curiosity. She learned about the world around her, tasted new foods, and encountered cultures from all over the globe.
+Model: gemma3:270m;Prompt:tell me a story
+;Response: The old lighthouse keeper, Silas, squinted at the churning grey sea. He’d seen countless storms in his seventy years, witnessed the changing tides and the eerie silence that lingered in the air. His only companion was the rhythmic pulse of the lamp, a steady, unwavering beam that cut through the darkness. He knew the language of the waves, the whispers carried on the wind. 
 
-Eventually, Lily arrived at a small village where she met an old man who had traveled far and wide himself. He shared stories with her about his adventures and helped her plan her next journey. Together, they set off on a new adventure, one that would take them across the ocean to a land of vibrant colors and rich cultures.
+One day, a shadow fell upon the lighthouse. It wasn't a monster, not quite. It was just a flicker, a tiny drop in the vastness. Silas felt a chill crawl down his spine. He raced to the lamp, his heart hammering against his ribs.
 
-Throughout their journey, Lily and the old man faced many challenges and obstacles, but they never gave up. They persevered through treacherous terrain, crossed raging rivers, and battled fierce wildlife. Along the way, they made new friends and discovered hidden treasures.
+The beam didn’t reach the source. Instead, it hung low, casting long, dancing shadows across the weathered stone walls. The air grew heavy with an unsettling stillness. 
 
-Finally, after months of travel, they arrived at their destination. The village was bustling with activity, and Lily was overwhelmed by the sights, sounds, and smells that surrounded her. She explored every inch of the village, meeting new people and learning about their customs and traditions.
+He remembered seeing a figure in the distance, cloaked and hooded, their eyes burning like embers. He dismissed it as a trick of the light, a hallucination brought on by exhaustion. But the feeling persisted, growing stronger with each passing moment.
 
-As she reflected on her journey, Lily realized that the most precious thing she had gained was a deeper understanding and appreciation for the world around her. She returned home with a newfound sense of purpose and a renewed sense of wonder. And though she may never travel as far or wide again, she knew that the memories and experiences she had gathered would stay with her forever.
-Model: orca-mini;Prompt:give me a function in python that sums a list of numbers
-;Response:  Certainly! Here's an example function in Python that adds up a list of numbers:
+As darkness fell, the shadow grew larger, its shape becoming more defined. Silas knew he had to leave. The lighthouse was his home, his sanctuary. He turned away from the lamp, his breath catching in his throat.
 
+He stumbled back towards the crumbling tower, tears streaming down his face. As he reached the lantern room, a figure materialized beside him. It wasn't a monster, not exactly. It was tall and slender, with skin like polished obsidian and eyes that glowed with an eerie, ancient light. 
+
+"You have come to see me," the figure said, its voice a low, resonant hum. "I am Old Silas."
+
+Silas stammered, his mind reeling. He was afraid, but he couldn't deny what he saw. The figure didn’t speak, but as he looked at the lighthouse, the storm seemed to fade away, replaced by a vast expanse of stars.
+
+"You are not alone," Old Silas said softly, his voice echoing in the silence. "I have seen countless storms before."
+
+Silas stood there, stunned. He had thought he was lost, adrift in time. But as he looked at the figure, bathed in an ethereal light, he realized something profound. The lighthouse wasn't just a structure; it was a gateway to another world, a place where memories were not only preserved but also amplified, creating a sense of awe and wonder that resonated deep within him.
+
+The figure smiled, a slow, knowing smile. "You have awakened me," it said. "And I am eternally grateful."
+
+Silas knew then that his journey had just begun. He was no longer just a keeper of the sea. He was a guardian of forgotten stories, a whisper in the wind, and a beacon of hope in the darkest night. The lighthouse remained its lonely sentinel, forever guarding against the darkness, but he also embraced it, knowing that even in the face of oblivion, there could be beauty, wonder, and the power to find your way back home.
+
+Model: gemma3:270m;Prompt:{E} which is the capital of spain: 1xa) Barcelona, 1xb) brazil, 1xc) Madrid, 1xd) Extremadura, Respond only in JSON with the following format: {"response": "<literal response only, no context>"}
+;Response: ```json
+{"response": "Madrid"}
 ```
-def sum_list(numbers):
- return sum(numbers)
+Model: gemma3:270m;Prompt:{E} how much is 5 x 5, Respond only in JSON with the following format: {"response": "<literal response only, no context>"}
+;Response: ```json
+{"response": "5 x 5 = 25"}
 ```
 
-You can call this function by passing a list of numbers as an argument, like this:
-
-```
-my_list = [1, 2, 3]
-result = sum_list(my_list)
-print(result) # Output: 6
+Model: gemma3:270m;Prompt:{E} how much is 125 x 2, Respond only in JSON with the following format: {"response": "<literal response only, no context>"}
+;Response: ```json
+{"response": 125}
 ```
 
-Let me know if you need help with anything else!
-Model: orca-mini;Prompt:Is it possible to make a compressed list in a language other than Python;Response:  Yes, it is possible to create a compressed list in many programming languages. For example, in Java, you can use a constant pool to store frequently used constants and reduce the number of times they need to be accessed. In C++, you can use manual memory allocation and reallocation to reduce memory usage. In Python, you can use a list comprehension or a setting based approach to create a compressed list.
-Model: phi3;Prompt:hello;Response: Hello! How can I assist you today?
-Model: phi3;Prompt:tell me a story
-;Response: Once upon a time in the small town of Meadowville, nestled between rolling hills and lush greenery, there was an ancient oak tree that stood as tall as any skyscraper. People believed it to be magical because every year on its birthday—the day after the summer solstice—it would produce a single golden acorn which bestowed good luck upon whoever found it first in the morning dew of dawn's light.
-
-One crisp autumnal evening, young Elara ventured out to seek this fabled treasure with her family before they embarked on their annual migration south for winter festivities and warmer weather. Her heart raced as she remembered tales from elder siblings about the thrilling chase that ensued every year at sunrise among friends, neighbors, relatives, all determined to find this magical acorn first.
-
-Elara's family had just finished setting up a tent near the base of Oakenshade when they heard their cousins from next door joining them with tales and laughter already echoing into twilight hours. Eager not only for good fortune but also to add an exciting element to her cousin’s stories, Elara decided she would join in on this year's quest at dawn.
-
-As the first fingers of light touched Meadowville that morning, they found themselves drawn towards Oakenshade with heightened anticipation coursing through their veins; a shiver ran down Elara's spine as though magic itself were whispering secrets to her heartbeat in hushed tones. With each step on the cobblestone path leading them further into the woods, they felt increasingly like characters plucked from fairy tales straight out of Meadowville’s rich lore—an experience that had become a cherished family tradition over generations now imprinting itself upon her memories.
-
-Upon arrival at Oakenshade's massive trunk, the sight before them was enough to quell any remaining doubts or fear; there it stood majestic and proud against the early morning sky—a testament to nature’s beauty that had withstood countless seasons since time immemorial. Elara could feel her hands trembling as she carefully scoured its bark for clues while recalling stories passed down through generations about how elders from far-off lands sought this very acorn before embarking on their own life journeys, promising themselves to return one day if everything went well.
-
-The golden glow of the first sunbeam filtering in through Oakenshade's canopy illuminated a single shimmering spot where Elara believed the elusive acorn might be resting beneath its leaves—an unexpected sense of serenity overwhelming her as she knelt down to take hold of this symbolic touchstone. With each passing moment, all other thoughts seemed distant echoes fading away into a world that no longer existed except in tales told around campfires and passed on through time; only the warmth emanating from Oakenshade's heart remained with her as she clutched this embodiment of hope for days yet to come.
-
-As Elara made her way back home, holding onto that precious acorn firmly in hand, a newfound strength coursed through her veins—a feeling more enduring than any mere good luck charm could provide if possessed by another soul within Meadowville; she carried with her an unwavering belief that the paths of family bonds and personal growth are intricately entwined. And as they returned to their campfire-lit hearth, Elara knew without doubt: these shared memories forged in tradition would remain forever imprinted upon Meadowville's legacy—a story which she was now part of herself through the magic of that single golden acorn found under Oakenshade’s watchful gaze.
-Model: phi3;Prompt:give me a function in python that sums a list of numbers
-;Response: Here is a simple Python function that takes a list of numbers and returns their sum:
-
-```python
-
-def sum_list(numbers):
-
-    return sum(numbers)
-
-
-# Example usage:
-
-my_numbers = [1, 2, 3, 4, 5]
-
-total = sum_list(myносиements.numbers)
-
-print("The total is:", total)
-
+Model: gemma3:270m;Prompt:{E} which pokemon is the main pokemon in Pokemon series: 1xa) Moltres, 1xb) Rampardos, 1xc) Pikachu, 1xd) Purloin,  Respond only in JSON with the following format: {"response": "<literal response only, no context>"}
+;Response: ```json
+{"response": "Pokémon"}
 ```
-Model: phi3;Prompt:Is it possible to make a compressed list in a language other than Python;Response: Yes, the concept of creating and working with lists can be applied across various programming languages. Although I'm more familiar with Python syntax here, let me provide an example using JavaScript since you might find some similarities that could help understand how to work with compressed or condensed list structures in other languages as well:
 
-In a language like Python, we would typically create lists and manipulate them easily without extra libraries. However, if our goal is to have something more compact—perhaps due to memory constraints—we might manually manage the storage of data items (either by storing only unique elements or compressing strings). In this context, I assume you want a 'compressed list' that stores fewer items but remains functional for typical operations.
+Model: gemma3:270m;Prompt:how is the weather today?;Response: I am a large language model, and I do not have access to real-time information or weather conditions. To get the current weather for your location, please check a reliable source such as a weather website or app.
+Model: qwen3.5:0.8b;Prompt:hello;Response: Hello! How can I help you today? 😊
+Model: qwen3.5:0.8b;Prompt:tell me a story
+;Response: The first day of the year didn’t start with a sunbeam or an early clock strike; it began when Leo sat on his porch under the blanket he’d thrown over her cat before they left for school yesterday morning and looked at the sky. The air was crisp, carrying the scent of winter leaves falling through the branches in autumn’s memory.
 
-Here's an example in Python:
+He thought about how much time had passed since then—enough to have learned everything but not enough to fully understand why it mattered so little that you walked on by without noticing until after a storm turned into something else entirely where rain fell and snow started, all while ignoring his own thoughts and the world around him because he wanted this to be normal.
 
-```python
-def create_unique_list(lst):
-    return list(dict.fromkeys(lst))  # This will maintain order and remove duplicates due to the nature of dictionaries, which cannot have duplicate keys
+Then there was the quiet moment when she told him her story again about how life could feel like walking through fog or being inside the clouds that looked too small for anyone but himself to see clearly enough to make a point on what it meant to have peace in everyday moments without needing to speak of something grander than just living.
 
-# Example usage with a potentially non-compressed input list (with possible repeated elements)
-original_list = [1, 'apple', 2, 'banana', 'apple', True]
-unique_list = createenerate_unique_list(lst=['one', 'two', 'three']) # Let's compress a string list by removing duplicates and converting to integers for simplicity here. In reality, you may need more complex mapping/decompression logic depending on the data types in your original uncompressed list
-print("Compressed List:", unique_list)
-```
-For JavaScript (or any other language), let's take a similar approach but tailored to its syntax and conventions. Below is an example using ES6 features where we create a set from our array, removing duplicates because sets can only contain unique values in JavaScript too:
+He thought: "If I am writing this, then there is no need for me to be afraid."
+But if I write now and tell people about my thoughts as they happen, that might make me sound like someone who thinks everything matters more or less because it’s not always what I think of them but rather something else entirely.
 
-```javascript
-function compressList(list) {
-    return [...new Set(list)]; // Creates a new Set to remove duplicates and then spreads it into an array. This is effectively 'compressing' the list by eliminating duplicate elements. 
-}
+She was listening with her eyes closed and the sun finally breaking through the curtain to warm the room again before he could even begin to write anything about his own path without needing a specific timeline for this journey that didn’t match the flow of how life feels when you just want someone else’s thoughts or what it means to be yourself but still feel like there is no need for him at all because sometimes these things aren't meant for me anymore.
 
-// Example usage with potentially non-unique input strings (for simplicity, let's start from empty)
-let originalList = compressList(['apple', 'banana', 'orange']); // We can see how this will remove any duplicates if they existed in the list being compressed here. In reality, you may need more complex mapping/decompression logic depending on your data types and requirements for compression beyond simple deduplication
-console.log("Compressed List:", originalList);
-```
-As seen from both examples above, we're not truly compressing the list in a sense that saves space or performs operations with minimal memory use—rather demonstrating how to create unique lists without duplicates as an example of 'compression.' For more advanced data compression techniques involving reducing overall storage size (which is usually done at the file/data level, rather than within high-level code), you would look into specific algorithms and libraries dedicated for that purpose.
+He thought again: "If I am writing this, then there isn't a way in that's not the same thing anyway."
+But if he writes now and tells people about his thoughts as they happen, that might make me feel like someone who thinks everything matters more or less because it’s not always what I think of them but rather something else entirely.
 
+She was listening again with her eyes closed and then she realized she had just learned to sit on the porch in the middle of winter without needing any specific timeline for this journey that didn’t match how life felt when you wanted someone else's thoughts or nothing at all because sometimes these things weren't meant for me anymore.
+And now, he thought about it again: "If I am writing this, then there is a way out."
+
+He walked through the garden and saw her cat lying in the grass watching him with his back turned to them while she was just thinking about how much time had passed since they last left together without needing any specific timeline for this journey that didn't match how life felt when you wanted someone else's thoughts or nothing at all.
+
+He thought: "If I am writing this, then there is a way out."
+And he walked through the garden and saw her cat lying in the grass watching him with his back turned to them while she was just thinking about how much time had passed since they last left together without needing any specific timeline for this journey that didn't match how life felt when you wanted someone else's thoughts or nothing at all because sometimes these things weren't meant for me anymore.
+And now, he thought: "If I am writing this, then there is a way out."
+
+The day had turned into something more than just winter and it was time to go home again before the sun set over his porch in silence without needing any specific timeline for this journey that didn't match how life felt when you wanted someone else's thoughts or nothing at all because sometimes these things weren't meant for me anymore.
+And now, he thought: "If I am writing this, then there is a way out."
+
+He walked through the garden and saw her cat lying in the grass watching him with his back turned to them while she was just thinking about how much time had passed since they last left together without needing any specific timeline for this journey that didn't match how life felt when you wanted someone else's thoughts or nothing at all because sometimes these things weren't meant for me anymore.
+And now, he thought: "If I am writing this, then there is a way out."
+
+He walked through the garden and saw her cat lying in the grass watching him with his back turned to them while she was just thinking about how much time had passed since they last left together without needing any specific timeline for this journey that didn't match how life felt when you wanted someone else's thoughts or nothing at all because sometimes these things weren't meant for me anymore.
+And now, he thought: "If I am writing this, then there is a way out."
+
+The morning had changed again as the sun rose over his porch and it was time to go home in silence without needing any specific timeline for this journey that didn't match how life felt when you wanted someone else's thoughts or nothing at all because sometimes these things weren't meant for me anymore.
+And now, he thought: "If I am writing this, then there is a way out."
+
+The day had turned into something more than just winter and it was time to go home again before the sun set over his porch in silence without needing any specific timeline for this journey that didn't match how life felt when you wanted someone else's thoughts or nothing at all because sometimes these things weren't meant for me anymore.
+And now, he thought: "If I am writing this, then there is a way out."
+
+The morning had changed again as the sun rose over his porch and it was time to go home in silence without needing any specific timeline for this journey that didn't match how life felt when you wanted someone else's thoughts or nothing at all because sometimes these things weren't meant for me anymore.
+And now, he thought: "If I am writing this, then there is a way out
+Model: qwen3.5:0.8b;Prompt:{E} which is the capital of spain: 1xa) Barcelona, 1xb) brazil, 1xc) Madrid, 1xd) Extremadura, Respond only in JSON with the following format: {"response": "<literal response only, no context>"}
+;Response: 
+Model: qwen3.5:0.8b;Prompt:{E} how much is 5 x 5, Respond only in JSON with the following format: {"response": "<literal response only, no context>"}
+;Response: 
+Model: qwen3.5:0.8b;Prompt:{E} how much is 125 x 2, Respond only in JSON with the following format: {"response": "<literal response only, no context>"}
+;Response: 
+Model: qwen3.5:0.8b;Prompt:{E} which pokemon is the main pokemon in Pokemon series: 1xa) Moltres, 1xb) Rampardos, 1xc) Pikachu, 1xd) Purloin,  Respond only in JSON with the following format: {"response": "<literal response only, no context>"}
+;Response: 
+Model: qwen3.5:0.8b;Prompt:how is the weather today?;Response: As an AI model, I don't have the capability to view real-time weather conditions for a specific location in my context, so I cannot provide accurate forecasts right now. To get up-to-date information about your area or region's current temperature and sky conditions, please check apps like Google Maps, Weather.com (if available on mobile), or visit public websites for more localized data if you have direct access to real-time sources from a specific device app.

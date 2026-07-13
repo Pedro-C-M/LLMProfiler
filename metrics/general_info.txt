@@ -1,0 +1,14 @@
+PRETTY_NAME = Ubuntu 26.04 LTS
+NAME = Ubuntu
+VERSION_ID = 26.04
+VERSION = 26.04 LTS (Resolute Raccoon)
+VERSION_CODENAME = resolute
+ID = ubuntu
+ID_LIKE = debian
+UBUNTU_CODENAME = resolute
+LOGO = ubuntu-logo
+CPU_MODEL = Intel(R) Core(TM) i5-14600K
+TOTAL_MEMORY = 61.51GB
+IP_ADDRESS = 127.0.0.1
+GPU_INFO = NVIDIA GeForce RTX 5060 Ti, 16311 MiB
+

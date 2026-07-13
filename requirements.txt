@@ -201,7 +201,7 @@ oauthlib==3.2.2
 olefile==0.47
 oletools==0.60.2
 ollama==0.4.8
-onnxruntime==1.20.1
+onnxruntime>=1.20.1
 open-webui==0.5.16
 openai==1.64.0
 opencv-python==4.11.0.86
