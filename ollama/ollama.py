@@ -85,7 +85,7 @@ class Ollama():
 
         return response
     
-    def single_prompt_with_ttft(self, model: str, prompt: str tg_tokens: int = -1):
+    def single_prompt_with_ttft(self, model: str, prompt: str, tg_tokens: int = -1):
         """
         Ejecuta un prompt midiendo TTFT usando streaming.
 
