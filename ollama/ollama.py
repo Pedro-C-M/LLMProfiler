@@ -85,7 +85,7 @@ class Ollama():
 
         return response
     
-    def single_prompt_with_ttft(self, model: str, prompt: str):
+    def single_prompt_with_ttft(self, model: str, prompt: str tg_tokens: int = -1):
         """
         Ejecuta un prompt midiendo TTFT usando streaming.
 
@@ -94,15 +94,31 @@ class Ollama():
         para mantener las métricas agregadas existentes, habría que repasar esto.
         """
         start_time = time.perf_counter_ns()
-        response = requests.post(
-            f"{self.url}/api/generate",
-            json={
-                "model": model,
-                "prompt": prompt,
-                "stream": True
-            },
-            stream=True
-        )
+
+        #Para que si no se introduce tg se use el anterior json, si se introduce se usa el nuevo
+        if(tg_tokens < 1):
+            response = requests.post(
+                f"{self.url}/api/generate",
+                json={
+                    "model": model,
+                    "prompt": prompt,
+                    "stream": True
+                },
+                stream=True
+            )
+        else:
+            response = requests.post(
+                f"{self.url}/api/generate",
+                json={
+                    "model": model,
+                    "prompt": prompt,
+                    "stream": True
+                    "options": {
+                        "num_predict": tg_tokens  #Tokens generados
+                    }
+                },
+                stream=True
+            )
 
         if response.status_code != 200:
             return response, None
