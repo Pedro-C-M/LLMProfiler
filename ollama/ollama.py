@@ -112,7 +112,7 @@ class Ollama():
                 json={
                     "model": model,
                     "prompt": prompt,
-                    "stream": True
+                    "stream": True,
                     "options": {
                         "num_predict": tg_tokens  #Tokens generados
                     }
