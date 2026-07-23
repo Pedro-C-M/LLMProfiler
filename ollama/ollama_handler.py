@@ -6,7 +6,12 @@ from logger.log import logger
 from dateutil import parser
 EXECUTION_PATH = os.path.dirname(os.path.realpath(__file__))
 METRICS_PATH = f"{EXECUTION_PATH}/../metrics"
-EXPORT_METRICS = "timestamp;total_duration;load_duration;ttft_duration;prompt_eval_count;prompt_eval_duration;eval_count;eval_duration;model"
+EXPORT_METRICS = (
+    "timestamp;total_duration;load_duration;ttft_duration;"
+    "prompt_eval_count;prompt_eval_duration;eval_count;eval_duration;"
+    "prefill_tok_s;decode_tok_s;tpot;tpot_client;"
+    "itl_mean;itl_median;itl_p95;itl_std;model"
+)
 TG_TOKENS = -1 #Para modificar el número de tok generados por prompt.
 
 class OllamaHandler():
@@ -229,6 +234,45 @@ class OllamaHandler():
         timestamp = dt.timestamp()
 
         return str(timestamp)
+
+    def compute_benchmark_metrics(self, data: dict) -> dict:
+        """
+        Deriva métricas típicas de benchmarks LLM a partir de la respuesta de Ollama.
+
+        Fases:
+        - Prefill: prompt_eval_duration / prompt_eval_count (server-side Ollama)
+        - Decode:  eval_duration / eval_count (server-side Ollama)
+
+        Latencias:
+        - TTFT: medido client-side en streaming (ttft_duration, ns)
+        - TPOT: eval_duration/eval_count (server) o media ITL (client)
+        - ITL:  latencia entre chunks consecutivos en streaming
+        """
+        metrics = {}
+
+        prompt_eval_count = int(data.get("prompt_eval_count") or 0)
+        prompt_eval_duration = int(data.get("prompt_eval_duration") or 0)
+        eval_count = int(data.get("eval_count") or 0)
+        eval_duration = int(data.get("eval_duration") or 0)
+
+        if prompt_eval_duration > 0:
+            metrics["prefill_tok_s"] = prompt_eval_count / (prompt_eval_duration / 1e9)
+        else:
+            metrics["prefill_tok_s"] = ""
+
+        if eval_duration > 0 and eval_count > 0:
+            decode_seconds = eval_duration / 1e9
+            metrics["decode_tok_s"] = eval_count / decode_seconds
+            metrics["tpot"] = decode_seconds / eval_count
+        else:
+            metrics["decode_tok_s"] = ""
+            metrics["tpot"] = ""
+
+        for key in ("itl_mean", "itl_median", "itl_p95", "itl_std", "tpot_client"):
+            value = data.get(key)
+            metrics[key] = "" if value is None else value
+
+        return metrics
             
     def extract_metrics(self, data: dict) -> dict:
         """
@@ -244,13 +288,15 @@ class OllamaHandler():
             dict: Diccionario con todas las métricas extraídas
         """
         result = {}
+        data = {**data, **self.compute_benchmark_metrics(data)}
         metrics = EXPORT_METRICS.split(";")
-        metrics = metrics[1:] #taking out timestamp
+        metrics = metrics[1:]  # taking out timestamp
 
         result["timestamp"] = self.parse_timestamp(data)
 
         for metric in metrics:
-            result[metric] = str(data.get(metric))
+            value = data.get(metric)
+            result[metric] = "" if value is None else str(value)
         
         return result
         

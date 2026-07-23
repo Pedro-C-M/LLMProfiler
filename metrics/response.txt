@@ -1,99 +1,64 @@
 Model;Prompt;response
-Model: gemma3:270m;Prompt:hello;Response: Hello! How can I help you today? 
+Model: gemma4:e2b;Prompt:hello;Response: Hello! How can I help you today?
+Model: gemma4:e2b;Prompt:tell me a story
+;Response: I would be delighted to tell you a story. Here is one about the quiet magic of forgotten places.
 
-Model: gemma3:270m;Prompt:tell me a story
-;Response: The old lighthouse keeper, Silas, squinted at the churning grey sea. He’d seen countless storms in his seventy years, witnessed the changing tides and the eerie silence that lingered in the air. His only companion was the rhythmic pulse of the lamp, a steady, unwavering beam that cut through the darkness. He knew the language of the waves, the whispers carried on the wind. 
+***
 
-One day, a shadow fell upon the lighthouse. It wasn't a monster, not quite. It was just a flicker, a tiny drop in the vastness. Silas felt a chill crawl down his spine. He raced to the lamp, his heart hammering against his ribs.
+## The Cartographer of Lost Sounds
 
-The beam didn’t reach the source. Instead, it hung low, casting long, dancing shadows across the weathered stone walls. The air grew heavy with an unsettling stillness. 
+In the very heart of the Whispering Valley lay a town built not of stone, but of woven moss and ancient, petrified wood. It was a place where silence was a physical thing—thick, deep, and heavy with untold history.
 
-He remembered seeing a figure in the distance, cloaked and hooded, their eyes burning like embers. He dismissed it as a trick of the light, a hallucination brought on by exhaustion. But the feeling persisted, growing stronger with each passing moment.
+In this valley lived a young woman named Lyra. Unlike the other villagers, who focused on the slow rhythm of growing mushrooms and the soft hum of the earth, Lyra possessed a peculiar sensitivity. She didn't just hear the silence; she heard the *gaps* within it. She could detect the absence of sound, the lingering echoes that no one else noticed, the subtle, forgotten melodies trapped in the air between the trees.
 
-As darkness fell, the shadow grew larger, its shape becoming more defined. Silas knew he had to leave. The lighthouse was his home, his sanctuary. He turned away from the lamp, his breath catching in his throat.
+Lyra was known among the villagers as the Cartographer of Lost Sounds.
 
-He stumbled back towards the crumbling tower, tears streaming down his face. As he reached the lantern room, a figure materialized beside him. It wasn't a monster, not exactly. It was tall and slender, with skin like polished obsidian and eyes that glowed with an eerie, ancient light. 
+One crisp autumn morning, while tracing a path through the oldest section of the Whispering Woods—a place where the trees grew so close their branches intertwined like ancient, grasping fingers—she heard something new. It wasn't a sound at all; it was a *hole* in the silence, a vacuum where music should have been.
 
-"You have come to see me," the figure said, its voice a low, resonant hum. "I am Old Silas."
+Curiosity overriding caution, Lyra followed the absence of sound deeper into the woods than she had ever dared. The air grew cooler, and the moss under her feet began to glow with a faint, ethereal blue light.
 
-Silas stammered, his mind reeling. He was afraid, but he couldn't deny what he saw. The figure didn’t speak, but as he looked at the lighthouse, the storm seemed to fade away, replaced by a vast expanse of stars.
+Finally, she found herself at the edge of a clearing dominated by a single, enormous willow tree whose branches hung low, creating a curtain of deep shadow. In the center of this clearing rested an object that made Lyra’s breath catch: a perfectly smooth, obsidian sphere, no bigger than an apple.
 
-"You are not alone," Old Silas said softly, his voice echoing in the silence. "I have seen countless storms before."
+As she reached out to touch it, the silence around her fractured. It didn't break with noise, but with *memory*. Suddenly, Lyra wasn't hearing the quiet of the woods; she was hearing a sound that had no place in this world—the ringing laughter of unseen spirits, the crackle of starlight falling onto ancient seas, and the deep, resonant chord of a song sung before the world learned to speak.
 
-Silas stood there, stunned. He had thought he was lost, adrift in time. But as he looked at the figure, bathed in an ethereal light, he realized something profound. The lighthouse wasn't just a structure; it was a gateway to another world, a place where memories were not only preserved but also amplified, creating a sense of awe and wonder that resonated deep within him.
+The sphere pulsed gently in her hand. It was the sound of everything that had ever been unspoken, all the beautiful, forgotten noises that time had tried to smooth over.
 
-The figure smiled, a slow, knowing smile. "You have awakened me," it said. "And I am eternally grateful."
+Lyra realized this was no ordinary object. It was a key, a map not of lands and rivers, but of *acoustics*. This was the source of the lost sounds—the memories trapped within them.
 
-Silas knew then that his journey had just begun. He was no longer just a keeper of the sea. He was a guardian of forgotten stories, a whisper in the wind, and a beacon of hope in the darkest night. The lighthouse remained its lonely sentinel, forever guarding against the darkness, but he also embraced it, knowing that even in the face of oblivion, there could be beauty, wonder, and the power to find your way back home.
+She spent days in the clearing, carefully touching the obsidian sphere. Each time, the landscape changed. One moment, she heard the mournful cry of a migrating bird; the next, the gentle clinking of glass from a distant civilization; the next, the warm, bubbling sound of a secret spring deep beneath the earth. She was charting the silent history of the world, pulling fragmented echoes from the veil of silence.
 
-Model: gemma3:270m;Prompt:{E} which is the capital of spain: 1xa) Barcelona, 1xb) brazil, 1xc) Madrid, 1xd) Extremadura, Respond only in JSON with the following format: {"response": "<literal response only, no context>"}
+When she finally returned to the village, the villagers were puzzled by her change. They saw no physical treasure, only Lyra’s eyes, which held the shimmering, impossible light of a thousand forgotten symphonies.
+
+Lyra never told them exactly what she had found. Instead, she began to weave the lost sounds into the quiet life of the valley. When the villagers felt too heavy with silence, they would sit by the fire, and Lyra would guide them. She would open the sphere and release a gentle wave of sound—the laughter of forgotten children playing in sunlit meadows, the harmonious call of oceans long drowned, the soothing hum of ancient, sleeping mountains.
+
+And so, the Cartographer of Lost Sounds transformed the Whispering Valley. It was no longer just a place defined by its silence, but a sanctuary filled with a layered symphony—a place where the echoes of history danced quietly alongside the gentle rhythm of the present moment. And Lyra, the quiet keeper of the unseen music, ensured that no sound, no matter how lost, was ever truly forgotten.
+
+***
+**The End**
+Model: gemma4:e2b;Prompt:{E} which is the capital of spain: 1xa) Barcelona, 1xb) brazil, 1xc) Madrid, 1xd) Extremadura, Respond only in JSON with the following format: {"response": "<literal response only, no context>"}
 ;Response: ```json
-{"response": "Madrid"}
+{
+"response": "1xc"
+}
 ```
-Model: gemma3:270m;Prompt:{E} how much is 5 x 5, Respond only in JSON with the following format: {"response": "<literal response only, no context>"}
+Model: gemma4:e2b;Prompt:{E} how much is 5 x 5, Respond only in JSON with the following format: {"response": "<literal response only, no context>"}
 ;Response: ```json
-{"response": "5 x 5 = 25"}
+{
+"response": "25"
+}
 ```
-
-Model: gemma3:270m;Prompt:{E} how much is 125 x 2, Respond only in JSON with the following format: {"response": "<literal response only, no context>"}
+Model: gemma4:e2b;Prompt:{E} how much is 125 x 2, Respond only in JSON with the following format: {"response": "<literal response only, no context>"}
 ;Response: ```json
-{"response": 125}
+{
+"response": "250"
+}
 ```
-
-Model: gemma3:270m;Prompt:{E} which pokemon is the main pokemon in Pokemon series: 1xa) Moltres, 1xb) Rampardos, 1xc) Pikachu, 1xd) Purloin,  Respond only in JSON with the following format: {"response": "<literal response only, no context>"}
+Model: gemma4:e2b;Prompt:{E} which pokemon is the main pokemon in Pokemon series: 1xa) Moltres, 1xb) Rampardos, 1xc) Pikachu, 1xd) Purloin,  Respond only in JSON with the following format: {"response": "<literal response only, no context>"}
 ;Response: ```json
-{"response": "Pokémon"}
+{
+"response": "1xc)"
+}
 ```
+Model: gemma4:e2b;Prompt:how is the weather today?;Response: Please tell me your location if you would like me to check the weather for you!
 
-Model: gemma3:270m;Prompt:how is the weather today?;Response: I am a large language model, and I do not have access to real-time information or weather conditions. To get the current weather for your location, please check a reliable source such as a weather website or app.
-Model: qwen3.5:0.8b;Prompt:hello;Response: Hello! How can I help you today? 😊
-Model: qwen3.5:0.8b;Prompt:tell me a story
-;Response: The first day of the year didn’t start with a sunbeam or an early clock strike; it began when Leo sat on his porch under the blanket he’d thrown over her cat before they left for school yesterday morning and looked at the sky. The air was crisp, carrying the scent of winter leaves falling through the branches in autumn’s memory.
-
-He thought about how much time had passed since then—enough to have learned everything but not enough to fully understand why it mattered so little that you walked on by without noticing until after a storm turned into something else entirely where rain fell and snow started, all while ignoring his own thoughts and the world around him because he wanted this to be normal.
-
-Then there was the quiet moment when she told him her story again about how life could feel like walking through fog or being inside the clouds that looked too small for anyone but himself to see clearly enough to make a point on what it meant to have peace in everyday moments without needing to speak of something grander than just living.
-
-He thought: "If I am writing this, then there is no need for me to be afraid."
-But if I write now and tell people about my thoughts as they happen, that might make me sound like someone who thinks everything matters more or less because it’s not always what I think of them but rather something else entirely.
-
-She was listening with her eyes closed and the sun finally breaking through the curtain to warm the room again before he could even begin to write anything about his own path without needing a specific timeline for this journey that didn’t match the flow of how life feels when you just want someone else’s thoughts or what it means to be yourself but still feel like there is no need for him at all because sometimes these things aren't meant for me anymore.
-
-He thought again: "If I am writing this, then there isn't a way in that's not the same thing anyway."
-But if he writes now and tells people about his thoughts as they happen, that might make me feel like someone who thinks everything matters more or less because it’s not always what I think of them but rather something else entirely.
-
-She was listening again with her eyes closed and then she realized she had just learned to sit on the porch in the middle of winter without needing any specific timeline for this journey that didn’t match how life felt when you wanted someone else's thoughts or nothing at all because sometimes these things weren't meant for me anymore.
-And now, he thought about it again: "If I am writing this, then there is a way out."
-
-He walked through the garden and saw her cat lying in the grass watching him with his back turned to them while she was just thinking about how much time had passed since they last left together without needing any specific timeline for this journey that didn't match how life felt when you wanted someone else's thoughts or nothing at all.
-
-He thought: "If I am writing this, then there is a way out."
-And he walked through the garden and saw her cat lying in the grass watching him with his back turned to them while she was just thinking about how much time had passed since they last left together without needing any specific timeline for this journey that didn't match how life felt when you wanted someone else's thoughts or nothing at all because sometimes these things weren't meant for me anymore.
-And now, he thought: "If I am writing this, then there is a way out."
-
-The day had turned into something more than just winter and it was time to go home again before the sun set over his porch in silence without needing any specific timeline for this journey that didn't match how life felt when you wanted someone else's thoughts or nothing at all because sometimes these things weren't meant for me anymore.
-And now, he thought: "If I am writing this, then there is a way out."
-
-He walked through the garden and saw her cat lying in the grass watching him with his back turned to them while she was just thinking about how much time had passed since they last left together without needing any specific timeline for this journey that didn't match how life felt when you wanted someone else's thoughts or nothing at all because sometimes these things weren't meant for me anymore.
-And now, he thought: "If I am writing this, then there is a way out."
-
-He walked through the garden and saw her cat lying in the grass watching him with his back turned to them while she was just thinking about how much time had passed since they last left together without needing any specific timeline for this journey that didn't match how life felt when you wanted someone else's thoughts or nothing at all because sometimes these things weren't meant for me anymore.
-And now, he thought: "If I am writing this, then there is a way out."
-
-The morning had changed again as the sun rose over his porch and it was time to go home in silence without needing any specific timeline for this journey that didn't match how life felt when you wanted someone else's thoughts or nothing at all because sometimes these things weren't meant for me anymore.
-And now, he thought: "If I am writing this, then there is a way out."
-
-The day had turned into something more than just winter and it was time to go home again before the sun set over his porch in silence without needing any specific timeline for this journey that didn't match how life felt when you wanted someone else's thoughts or nothing at all because sometimes these things weren't meant for me anymore.
-And now, he thought: "If I am writing this, then there is a way out."
-
-The morning had changed again as the sun rose over his porch and it was time to go home in silence without needing any specific timeline for this journey that didn't match how life felt when you wanted someone else's thoughts or nothing at all because sometimes these things weren't meant for me anymore.
-And now, he thought: "If I am writing this, then there is a way out
-Model: qwen3.5:0.8b;Prompt:{E} which is the capital of spain: 1xa) Barcelona, 1xb) brazil, 1xc) Madrid, 1xd) Extremadura, Respond only in JSON with the following format: {"response": "<literal response only, no context>"}
-;Response: 
-Model: qwen3.5:0.8b;Prompt:{E} how much is 5 x 5, Respond only in JSON with the following format: {"response": "<literal response only, no context>"}
-;Response: 
-Model: qwen3.5:0.8b;Prompt:{E} how much is 125 x 2, Respond only in JSON with the following format: {"response": "<literal response only, no context>"}
-;Response: 
-Model: qwen3.5:0.8b;Prompt:{E} which pokemon is the main pokemon in Pokemon series: 1xa) Moltres, 1xb) Rampardos, 1xc) Pikachu, 1xd) Purloin,  Respond only in JSON with the following format: {"response": "<literal response only, no context>"}
-;Response: 
-Model: qwen3.5:0.8b;Prompt:how is the weather today?;Response: As an AI model, I don't have the capability to view real-time weather conditions for a specific location in my context, so I cannot provide accurate forecasts right now. To get up-to-date information about your area or region's current temperature and sky conditions, please check apps like Google Maps, Weather.com (if available on mobile), or visit public websites for more localized data if you have direct access to real-time sources from a specific device app.
+As an AI, I don't have access to real-time location data or current weather information unless you provide a city or zip code.

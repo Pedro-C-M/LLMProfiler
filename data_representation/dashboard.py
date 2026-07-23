@@ -183,32 +183,65 @@ def process_model_metrics(ollama_df: pd.DataFrame, score_df: pd.DataFrame) -> pd
 
     for col in duration_cols:
         if col in ollama_processed.columns:
-            ollama_processed[col] = pd.to_numeric(ollama_processed[col], errors='coerce') / 1e9 # Convertir medida de tiempo 
+            ollama_processed[col] = pd.to_numeric(ollama_processed[col], errors='coerce') / 1e9
 
-    # Calculate derived metrics
+    # Prefill / decode throughput (backward compatible with older CSVs)
+    if 'prefill_tok_s' not in ollama_processed.columns:
+        ollama_processed['prefill_tok_s'] = pd.NA
+    if 'decode_tok_s' not in ollama_processed.columns:
+        ollama_processed['decode_tok_s'] = pd.NA
+
+    missing_prefill = ollama_processed['prefill_tok_s'].isna()
+    ollama_processed.loc[missing_prefill, 'prefill_tok_s'] = (
+        ollama_processed.loc[missing_prefill, 'prompt_eval_count']
+        / ollama_processed.loc[missing_prefill, 'prompt_eval_duration']
+    )
+
+    missing_decode = ollama_processed['decode_tok_s'].isna()
+    ollama_processed.loc[missing_decode, 'decode_tok_s'] = (
+        ollama_processed.loc[missing_decode, 'eval_count']
+        / ollama_processed.loc[missing_decode, 'eval_duration']
+    )
+
+    # TPOT server-side (s/token): eval_duration already in seconds
+    if 'tpot' not in ollama_processed.columns:
+        ollama_processed['tpot'] = pd.NA
+    missing_tpot = ollama_processed['tpot'].isna()
+    ollama_processed.loc[missing_tpot, 'tpot'] = (
+        ollama_processed.loc[missing_tpot, 'eval_duration']
+        / ollama_processed.loc[missing_tpot, 'eval_count'].clip(lower=1)
+    )
+
+    # Legacy aliases used by existing charts
+    ollama_processed['tokens_per_second'] = ollama_processed['decode_tok_s']
+    ollama_processed['prompt_tokens_per_second'] = ollama_processed['prefill_tok_s']
     ollama_processed['response_time'] = (
         ollama_processed['total_duration'] - ollama_processed['load_duration']
     )
-    ollama_processed['tokens_per_second'] = (
-        ollama_processed['eval_count'] / ollama_processed['eval_duration']
-    )
-    ollama_processed['prompt_tokens_per_second'] = (
-        ollama_processed['prompt_eval_count'] / ollama_processed['prompt_eval_duration']
-    )
+    ollama_processed['prefill_duration'] = ollama_processed['prompt_eval_duration']
+    ollama_processed['decode_duration'] = ollama_processed['eval_duration']
 
     # Aggregate by model
     aggregation = {
         'total_duration': ['mean', 'std', 'count'],
         'response_time': ['mean', 'std'],
+        'prefill_duration': ['mean', 'std'],
+        'decode_duration': ['mean', 'std'],
         'eval_duration': ['mean', 'std'],
         'load_duration': ['mean'],
+        'prefill_tok_s': ['mean', 'std'],
+        'decode_tok_s': ['mean', 'std'],
         'tokens_per_second': ['mean', 'std'],
         'prompt_tokens_per_second': ['mean'],
         'eval_count': ['mean', 'sum'],
         'prompt_eval_count': ['mean'],
+        'tpot': ['mean', 'std'],
     }
     if 'ttft_duration' in ollama_processed.columns:
         aggregation['ttft_duration'] = ['mean', 'std']
+    for col in ('tpot_client', 'itl_mean', 'itl_median', 'itl_p95', 'itl_std'):
+        if col in ollama_processed.columns:
+            aggregation[col] = ['mean', 'std'] if col in ('itl_mean', 'tpot_client') else ['mean']
 
     model_stats = ollama_processed.groupby('model').agg(aggregation).round(3)
 
@@ -564,6 +597,128 @@ def create_tokens_per_second_chart(model_stats: pd.DataFrame):
     p.add_layout(labels)
 
     p.xaxis.major_label_orientation = 45
+
+    return p
+
+
+def create_prefill_decode_chart(model_stats: pd.DataFrame):
+    """Compara throughput de prefill vs decode por modelo."""
+    if model_stats.empty:
+        return None
+    if 'prefill_tok_s_mean' not in model_stats.columns or 'decode_tok_s_mean' not in model_stats.columns:
+        return None
+
+    models = model_stats['model'].tolist()
+    sorted_models = sort_models_by_family_and_size(models)
+    sorted_stats = model_stats.set_index('model').loc[sorted_models].reset_index()
+
+    chart_data = []
+    for _, row in sorted_stats.iterrows():
+        chart_data.append({
+            'model': row['model'],
+            'phase': 'Prefill',
+            'tok_s': row['prefill_tok_s_mean'],
+            'color': '#4C78A8',
+        })
+        chart_data.append({
+            'model': row['model'],
+            'phase': 'Decode',
+            'tok_s': row['decode_tok_s_mean'],
+            'color': '#F58518',
+        })
+
+    chart_df = pd.DataFrame(chart_data)
+    chart_df['x'] = list(zip(chart_df['model'], chart_df['phase']))
+    source = ColumnDataSource(chart_df)
+
+    factors = [(model, phase) for model in sorted_models for phase in ('Prefill', 'Decode')]
+
+    p = figure(
+        title="⚡ Prefill vs Decode Throughput (tok/s)",
+        x_range=FactorRange(*factors),
+        y_axis_label="Tokens per Second",
+        width=900,
+        height=420,
+        tools="pan,wheel_zoom,box_zoom,reset,save",
+    )
+
+    p.vbar(x='x', top='tok_s', width=0.8, color='color', alpha=0.85, source=source)
+    p.xaxis.major_label_orientation = 45
+    p.xgrid.grid_line_color = None
+
+    prefill_glyph = p.scatter([], [], color='#4C78A8', size=0)
+    decode_glyph = p.scatter([], [], color='#F58518', size=0)
+    p.legend.location = 'top_left'
+    p.legend.click_policy = 'hide'
+    p.add_layout(
+        Legend(items=[
+            LegendItem(label='Prefill', renderers=[prefill_glyph]),
+            LegendItem(label='Decode', renderers=[decode_glyph]),
+        ])
+    )
+
+    return p
+
+
+def create_latency_benchmark_chart(model_stats: pd.DataFrame):
+    """Compara TTFT, TPOT e ITL media por modelo."""
+    if model_stats.empty:
+        return None
+
+    metric_defs = [
+        ('ttft_duration_mean', 'TTFT', '#4C78A8'),
+        ('tpot_mean', 'TPOT (server)', '#F58518'),
+        ('tpot_client_mean', 'TPOT (client)', '#E45756'),
+        ('itl_mean_mean', 'ITL mean', '#72B7B2'),
+    ]
+    available = [(col, label, color) for col, label, color in metric_defs if col in model_stats.columns]
+    if not available:
+        return None
+
+    models = model_stats['model'].tolist()
+    sorted_models = sort_models_by_family_and_size(models)
+    sorted_stats = model_stats.set_index('model').loc[sorted_models].reset_index()
+
+    chart_data = []
+    for _, row in sorted_stats.iterrows():
+        for col, label, color in available:
+            chart_data.append({
+                'model': row['model'],
+                'metric': label,
+                'latency_s': row[col],
+                'color': color,
+            })
+
+    chart_df = pd.DataFrame(chart_data)
+    chart_df['x'] = list(zip(chart_df['model'], chart_df['metric']))
+    source = ColumnDataSource(chart_df)
+
+    factors = [
+        (model, label)
+        for model in sorted_models
+        for col, label, color in available
+    ]
+
+    p = figure(
+        title="⏱️ Latency Benchmarks: TTFT / TPOT / ITL (seconds)",
+        x_range=FactorRange(*factors),
+        y_axis_label="Seconds",
+        width=900,
+        height=420,
+        tools="pan,wheel_zoom,box_zoom,reset,save",
+    )
+
+    p.vbar(x='x', top='latency_s', width=0.8, color='color', alpha=0.85, source=source)
+    p.xaxis.major_label_orientation = 45
+    p.xgrid.grid_line_color = None
+
+    legend_items = []
+    for col, label, color in available:
+        glyph = p.scatter([], [], color=color, size=0)
+        legend_items.append(LegendItem(label=label, renderers=[glyph]))
+    p.legend.location = 'top_left'
+    p.legend.click_policy = 'hide'
+    p.add_layout(Legend(items=legend_items))
 
     return p
 
@@ -2011,6 +2166,21 @@ def main():
             if tokens_chart:
                 st.bokeh_chart(tokens_chart, use_container_width=True)
 
+            # 3b. Prefill vs Decode + Latency benchmarks
+            st.subheader("⚡ LLM Benchmark Metrics")
+            st.markdown(
+                "*Prefill (prompt processing) vs Decode (token generation) throughput, "
+                "plus standard latency metrics: TTFT, TPOT and ITL.*"
+            )
+
+            prefill_decode_chart = create_prefill_decode_chart(model_stats)
+            if prefill_decode_chart:
+                st.bokeh_chart(prefill_decode_chart, use_container_width=True)
+
+            latency_chart = create_latency_benchmark_chart(model_stats)
+            if latency_chart:
+                st.bokeh_chart(latency_chart, use_container_width=True)
+
             # 4. Resource Utilization Timeline
             st.subheader("📈 System Resource Usage")
             st.markdown(
@@ -2099,8 +2269,7 @@ def main():
             gpu_power_model_chart = create_gpu_power_per_model_chart(model_power_stats)
             if gpu_power_model_chart:
                 st.bokeh_chart(gpu_power_model_chart, use_container_width=True)
-
-            # 12. Model Statistics Summary
+# 12. Model Statistics Summary
             st.subheader("📋 Model Performance Summary")
 
             # Create a summary table with family information
@@ -2118,15 +2287,34 @@ def main():
                     'Family': model_families,
                     'Size': model_sizes,
                     'Quality Score': model_stats.get('Score', [0] * len(model_stats)),
-                    'Avg Response Time (s)': model_stats['response_time_mean'],
-                    'Tokens/Second': model_stats['tokens_per_second_mean'],
                     'Total Requests': model_stats['total_duration_count'],
                     'Consistency (1/std)': (
                         1 / (model_stats['response_time_std'] + 0.001)
                     ).round(2),
+                    'Avg Response Time (s)': model_stats['response_time_mean'],
+                    'Prefill tok/s': (
+                        model_stats['prefill_tok_s_mean']
+                        if 'prefill_tok_s_mean' in model_stats.columns
+                        else model_stats['prompt_tokens_per_second_mean']
+                    ),
+                    'Decode tok/s': (
+                        model_stats['decode_tok_s_mean']
+                        if 'decode_tok_s_mean' in model_stats.columns
+                        else model_stats['tokens_per_second_mean']
+                    ),
                 }
+                
+                # Optional Latency Metrics
                 if 'ttft_duration_mean' in model_stats.columns:
                     summary_data['Avg TTFT (s)'] = model_stats['ttft_duration_mean']
+                if 'tpot_mean' in model_stats.columns:
+                    summary_data['Avg TPOT (s)'] = model_stats['tpot_mean']
+                if 'tpot_client_mean' in model_stats.columns:
+                    summary_data['Avg TPOT client (s)'] = model_stats['tpot_client_mean']
+                if 'itl_mean_mean' in model_stats.columns:
+                    summary_data['Avg ITL (s)'] = model_stats['itl_mean_mean']
+                if 'itl_p95_mean' in model_stats.columns:
+                    summary_data['P95 ITL (s)'] = model_stats['itl_p95_mean']
 
                 summary_df = pd.DataFrame(summary_data)
 
@@ -2163,10 +2351,17 @@ def main():
                 # Format the dataframe for better display
                 summary_df['Quality Score'] = summary_df['Quality Score'].round(2)
                 summary_df['Avg Response Time (s)'] = summary_df['Avg Response Time (s)'].round(2)
-                summary_df['Tokens/Second'] = summary_df['Tokens/Second'].round(1)
+                
+                if 'Prefill tok/s' in summary_df.columns:
+                    summary_df['Prefill tok/s'] = summary_df['Prefill tok/s'].round(1)
+                if 'Decode tok/s' in summary_df.columns:
+                    summary_df['Decode tok/s'] = summary_df['Decode tok/s'].round(1)
 
                 if 'Avg TTFT (s)' in summary_df.columns:
                     summary_df['Avg TTFT (s)'] = summary_df['Avg TTFT (s)'].round(3)
+                for col in ('Avg TPOT (s)', 'Avg TPOT client (s)', 'Avg ITL (s)', 'P95 ITL (s)'):
+                    if col in summary_df.columns:
+                        summary_df[col] = summary_df[col].round(4)
 
                 if 'Avg Disk Reads/sec' in summary_df.columns:
                     summary_df['Avg Disk Reads/sec'] = summary_df['Avg Disk Reads/sec'].round(2)
@@ -2176,18 +2371,41 @@ def main():
                 if 'Avg GPU Power (W)' in summary_df.columns:
                     summary_df['Avg GPU Power (W)'] = summary_df['Avg GPU Power (W)'].round(2)
                     summary_df['Max GPU Power (W)'] = summary_df['Max GPU Power (W)'].round(2)
-                    summary_df['Energy/Execution (Wh)'] = summary_df['Energy/Execution (Wh)'].round(
-                        2
-                    )
+                    summary_df['Energy/Execution (Wh)'] = summary_df['Energy/Execution (Wh)'].round(2)
 
-                st.dataframe(summary_df, use_container_width=True)
+                # --- NEW ORGANIZED DISPLAY (TABS) ---
+                tab_overview, tab_throughput, tab_hardware = st.tabs([
+                    "🎯 Overview & Quality", 
+                    "⚡ Latency & Throughput", 
+                    "🖥️ Hardware Efficiency"
+                ])
+                
+                with tab_overview:
+                    cols_overview = ['Model', 'Family', 'Size', 'Quality Score', 'Total Requests', 'Consistency (1/std)']
+                    st.dataframe(summary_df[[c for c in cols_overview if c in summary_df.columns]], use_container_width=True)
+                    
+                with tab_throughput:
+                    cols_throughput = ['Model', 'Avg Response Time (s)', 'Prefill tok/s', 'Decode tok/s', 'Avg TTFT (s)', 'Avg TPOT (s)', 'Avg TPOT client (s)', 'Avg ITL (s)', 'P95 ITL (s)']
+                    st.dataframe(summary_df[[c for c in cols_throughput if c in summary_df.columns]], use_container_width=True)
+                    
+                with tab_hardware:
+                    cols_hardware = ['Model', 'Avg Disk Reads/sec', 'Avg Disk Writes/sec', 'Avg Disk Busy %', 'Avg GPU Power (W)', 'Max GPU Power (W)', 'Energy/Execution (Wh)']
+                    st.dataframe(summary_df[[c for c in cols_hardware if c in summary_df.columns]], use_container_width=True)
+
 
                 # Key insights
                 st.subheader("💡 Key Insights")
 
                 if len(summary_df) > 0:
                     best_quality = summary_df.loc[summary_df['Quality Score'].idxmax()]
-                    fastest = summary_df.loc[summary_df['Tokens/Second'].idxmax()]
+                    # Use Decode tok/s instead of Tokens/Second for fastest generation insight
+                    if 'Decode tok/s' in summary_df.columns and not summary_df['Decode tok/s'].isna().all():
+                        fastest = summary_df.loc[summary_df['Decode tok/s'].idxmax()]
+                        fastest_metric = f"{fastest['Decode tok/s']:.1f} tok/s (Decode)"
+                    else:
+                        fastest = summary_df.iloc[0]
+                        fastest_metric = "N/A"
+                        
                     most_consistent = summary_df.loc[summary_df['Consistency (1/std)'].idxmax()]
 
                     col1, col2, col3 = st.columns(3)
@@ -2201,9 +2419,9 @@ def main():
 
                     with col2:
                         st.metric(
-                            "⚡ Fastest Throughput",
+                            "⚡ Fastest Generation",
                             fastest['Model'],
-                            f"{fastest['Tokens/Second']:.1f} tok/s",
+                            fastest_metric,
                         )
 
                     with col3:
@@ -2287,4 +2505,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main()          

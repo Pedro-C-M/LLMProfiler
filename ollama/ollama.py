@@ -1,6 +1,41 @@
 import requests
 import json
 import time
+import statistics
+
+
+def compute_itl_stats(token_timestamps_ns: list[int]) -> dict:
+    """
+    Calcula métricas de latencia entre tokens (ITL) y TPOT client-side.
+
+    ITL_i = tiempo entre la llegada del token i y el token i+1.
+    TPOT client-side = media de ITL (excluye TTFT implícitamente).
+    """
+    empty = {
+        "itl_mean": None,
+        "itl_median": None,
+        "itl_p95": None,
+        "itl_std": None,
+        "tpot_client": None,
+    }
+    if len(token_timestamps_ns) < 2:
+        return empty
+
+    itls = [
+        (token_timestamps_ns[i] - token_timestamps_ns[i - 1]) / 1e9
+        for i in range(1, len(token_timestamps_ns))
+    ]
+    sorted_itls = sorted(itls)
+    p95_idx = max(0, min(int(len(sorted_itls) * 0.95) - 1, len(sorted_itls) - 1))
+
+    return {
+        "itl_mean": statistics.mean(itls),
+        "itl_median": statistics.median(itls),
+        "itl_p95": sorted_itls[p95_idx],
+        "itl_std": statistics.stdev(itls) if len(itls) > 1 else 0.0,
+        "tpot_client": statistics.mean(itls),
+    }
+
 
 class Ollama():
     """
@@ -124,6 +159,7 @@ class Ollama():
             return response, None
 
         first_token_time = None
+        token_timestamps_ns = []
         response_chunks = []
         final_data = {}
 
@@ -134,8 +170,11 @@ class Ollama():
             data = json.loads(line)
             chunk = data.get("response", "")
 
-            if first_token_time is None and chunk:
-                first_token_time = time.perf_counter_ns()
+            if chunk:
+                now = time.perf_counter_ns()
+                if first_token_time is None:
+                    first_token_time = now
+                token_timestamps_ns.append(now)
 
             response_chunks.append(chunk)
 
@@ -146,6 +185,7 @@ class Ollama():
         final_data["ttft_duration"] = (
             first_token_time - start_time if first_token_time is not None else None
         )
+        final_data.update(compute_itl_stats(token_timestamps_ns))
 
         return response, final_data
 
