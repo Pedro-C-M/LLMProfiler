@@ -7,7 +7,7 @@ from dateutil import parser
 EXECUTION_PATH = os.path.dirname(os.path.realpath(__file__))
 METRICS_PATH = f"{EXECUTION_PATH}/../metrics"
 EXPORT_METRICS = "timestamp;total_duration;load_duration;ttft_duration;prompt_eval_count;prompt_eval_duration;eval_count;eval_duration;model"
-TG_TOKENS = -1 #Para modificar el número de tok generados por prompt.
+TG_TOKENS = 128 #Para modificar el número de tok generados por prompt.
 
 class OllamaHandler():
     """
