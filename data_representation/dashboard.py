@@ -215,16 +215,25 @@ def process_model_metrics(ollama_df: pd.DataFrame, score_df: pd.DataFrame) -> pd
     # Legacy aliases used by existing charts
     ollama_processed['tokens_per_second'] = ollama_processed['decode_tok_s']
     ollama_processed['prompt_tokens_per_second'] = ollama_processed['prefill_tok_s']
-    ollama_processed['response_time'] = (
+    
+    # Cambio para tener en cuenta diferente tiempo server y completo
+    ollama_processed['server_compute_time'] = (
         ollama_processed['total_duration'] - ollama_processed['load_duration']
     )
+    ollama_processed['total_response_time'] = ollama_processed['total_duration']
+    
+    ollama_processed['prefill_duration'] = ollama_processed['prompt_eval_duration']
+    ollama_processed['decode_duration'] = ollama_processed['eval_duration']
+
+
     ollama_processed['prefill_duration'] = ollama_processed['prompt_eval_duration']
     ollama_processed['decode_duration'] = ollama_processed['eval_duration']
 
     # Aggregate by model
     aggregation = {
         'total_duration': ['mean', 'std', 'count'],
-        'response_time': ['mean', 'std'],
+        'server_compute_time': ['mean', 'std'],
+        'total_response_time': ['mean', 'std'],
         'prefill_duration': ['mean', 'std'],
         'decode_duration': ['mean', 'std'],
         'eval_duration': ['mean', 'std'],
@@ -269,10 +278,10 @@ def create_performance_overview_chart(model_stats: pd.DataFrame):
 
     # Check for required columns
     required_cols = [
-        'response_time_mean',
+        'total_response_time_mean',
         'tokens_per_second_mean',
         'eval_count_sum',
-        'response_time_std',
+        'total_response_time_std',
     ]
     missing_cols = [col for col in required_cols if col not in model_stats.columns]
     if missing_cols:
@@ -281,7 +290,7 @@ def create_performance_overview_chart(model_stats: pd.DataFrame):
 
     # Filter out rows with NaN values
     clean_stats = model_stats.dropna(
-        subset=['Score', 'response_time_mean', 'tokens_per_second_mean']
+        subset=['Score', 'total_response_time_mean', 'tokens_per_second_mean']
     )
 
     if clean_stats.empty:
@@ -298,11 +307,11 @@ def create_performance_overview_chart(model_stats: pd.DataFrame):
     # Prepare data
     source_data = {
         'model': clean_stats['model'].tolist(),
-        'avg_response_time': clean_stats['response_time_mean'].tolist(),
+        'avg_response_time': clean_stats['total_response_time_mean'].tolist(),
         'score': clean_stats['Score'].tolist(),
         'tokens_per_sec': clean_stats['tokens_per_second_mean'].tolist(),
         'total_tokens': clean_stats['eval_count_sum'].tolist(),
-        'consistency': (1 / (clean_stats['response_time_std'] + 0.001)).tolist(),
+        'consistency': (1 / (clean_stats['total_response_time_std'] + 0.001)).tolist(),
     }
 
     # Add family information to tooltips
@@ -372,9 +381,7 @@ def create_response_time_distribution(ollama_df: pd.DataFrame):
     """Create box plot showing response time distribution by model with family grouping"""
     # Convert to seconds
     ollama_processed = ollama_df.copy()
-    ollama_processed['response_time'] = (
-        ollama_processed['total_duration'] - ollama_processed['load_duration']
-    ) / 1e9
+    ollama_processed['response_time'] = ollama_processed['total_duration'] / 1e9
 
     df = ollama_processed[["model", "response_time"]].rename(
         columns={"model": "kind", "response_time": "value"}
@@ -2289,9 +2296,10 @@ def main():
                     'Quality Score': model_stats.get('Score', [0] * len(model_stats)),
                     'Total Requests': model_stats['total_duration_count'],
                     'Consistency (1/std)': (
-                        1 / (model_stats['response_time_std'] + 0.001)
+                        1 / (model_stats['total_response_time_std'] + 0.001)
                     ).round(2),
-                    'Avg Response Time (s)': model_stats['response_time_mean'],
+                    'Avg Server Compute (s)': model_stats['server_compute_time_mean'],
+                    'Avg Total Response (s)': model_stats['total_response_time_mean'],
                     'Prefill tok/s': (
                         model_stats['prefill_tok_s_mean']
                         if 'prefill_tok_s_mean' in model_stats.columns
@@ -2350,7 +2358,8 @@ def main():
 
                 # Format the dataframe for better display
                 summary_df['Quality Score'] = summary_df['Quality Score'].round(2)
-                summary_df['Avg Response Time (s)'] = summary_df['Avg Response Time (s)'].round(2)
+                summary_df['Avg Server Compute (s)'] = summary_df['Avg Server Compute (s)'].round(2)
+                summary_df['Avg Total Response (s)'] = summary_df['Avg Total Response (s)'].round(2)
                 
                 if 'Prefill tok/s' in summary_df.columns:
                     summary_df['Prefill tok/s'] = summary_df['Prefill tok/s'].round(1)
@@ -2381,11 +2390,11 @@ def main():
                 ])
                 
                 with tab_overview:
-                    cols_overview = ['Model', 'Family', 'Size', 'Quality Score', 'Total Requests', 'Consistency (1/std)']
+                    cols_overview = ['Model', 'Family', 'Size', 'Quality Score', 'Total Requests', 'Consistency (1/std)', 'Avg Server Compute (s)', 'Avg Total Response (s)']
                     st.dataframe(summary_df[[c for c in cols_overview if c in summary_df.columns]], use_container_width=True)
                     
                 with tab_throughput:
-                    cols_throughput = ['Model', 'Avg Response Time (s)', 'Prefill tok/s', 'Decode tok/s', 'Avg TTFT (s)', 'Avg TPOT (s)', 'Avg TPOT client (s)', 'Avg ITL (s)', 'P95 ITL (s)']
+                    cols_throughput = ['Model', 'Avg Server Compute (s)', 'Avg Total Response (s)', 'Prefill tok/s', 'Decode tok/s', 'Avg TTFT (s)', 'Avg TPOT (s)', 'Avg TPOT client (s)', 'Avg ITL (s)', 'P95 ITL (s)']
                     st.dataframe(summary_df[[c for c in cols_throughput if c in summary_df.columns]], use_container_width=True)
                     
                 with tab_hardware:
