@@ -11,5 +11,7 @@ prometheus-*
 prometheus.yml
 data/
 experiment_results/
+metrics/
 logger/logs.txt
 venv/
+

@@ -4,12 +4,14 @@ import time
 import statistics
 
 
-def compute_itl_stats(token_timestamps_ns: list[int]) -> dict:
+def compute_itl_stats(token_timestamps_ns: list[int], eval_count: int = 0) -> dict:
     """
-    Calcula métricas de latencia entre tokens (ITL) y TPOT client-side.
+    Calcula métricas de latencia entre chunks de red (ITL) y el TPOT real client-side.
 
-    ITL_i = tiempo entre la llegada del token i y el token i+1.
-    TPOT client-side = media de ITL (excluye TTFT implícitamente).
+    ITL_i = tiempo entre la llegada del chunk HTTP i y el chunk i+1.
+    TPOT client-side = Tiempo total de decodificación / (Tokens reales - 1).
+
+    Tiene en cuenta que pueden venir varios tokens en 1 chunk por como va Ollama.
     """
     empty = {
         "itl_mean": None,
@@ -18,6 +20,7 @@ def compute_itl_stats(token_timestamps_ns: list[int]) -> dict:
         "itl_std": None,
         "tpot_client": None,
     }
+    
     if len(token_timestamps_ns) < 2:
         return empty
 
@@ -27,13 +30,16 @@ def compute_itl_stats(token_timestamps_ns: list[int]) -> dict:
     ]
     sorted_itls = sorted(itls)
     p95_idx = max(0, min(int(len(sorted_itls) * 0.95) - 1, len(sorted_itls) - 1))
+    tokens_generated = eval_count if eval_count > 1 else len(token_timestamps_ns)
+    total_decode_time_client = (token_timestamps_ns[-1] - token_timestamps_ns[0]) / 1e9
+    true_tpot_client = total_decode_time_client / (tokens_generated - 1)
 
     return {
         "itl_mean": statistics.mean(itls),
         "itl_median": statistics.median(itls),
         "itl_p95": sorted_itls[p95_idx],
         "itl_std": statistics.stdev(itls) if len(itls) > 1 else 0.0,
-        "tpot_client": statistics.mean(itls),
+        "tpot_client": true_tpot_client, # TPOT desvinculado de los chunks de red
     }
 
 
@@ -185,7 +191,9 @@ class Ollama():
         final_data["ttft_duration"] = (
             first_token_time - start_time if first_token_time is not None else None
         )
-        final_data.update(compute_itl_stats(token_timestamps_ns))
+        
+        eval_count = final_data.get("eval_count", 0)
+        final_data.update(compute_itl_stats(token_timestamps_ns, eval_count))
 
         return response, final_data
 

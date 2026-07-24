@@ -4,6 +4,7 @@ import os
 import json
 from logger.log import logger
 from dateutil import parser
+
 EXECUTION_PATH = os.path.dirname(os.path.realpath(__file__))
 METRICS_PATH = f"{EXECUTION_PATH}/../metrics"
 EXPORT_METRICS = (
