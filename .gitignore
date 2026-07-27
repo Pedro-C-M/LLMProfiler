@@ -11,6 +11,7 @@ prometheus-*
 prometheus.yml
 data/
 experiment_results/
+ollama/model_list.txt
 metrics/
 logger/logs.txt
 venv/

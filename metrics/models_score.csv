@@ -1,2 +1,4 @@
 Model;Score
 gemma4:e2b;10.0
+llama3.2:3b;7.5
+gemma3:4b;10.0

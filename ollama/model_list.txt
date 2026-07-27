@@ -1,1 +1,3 @@
 gemma4:e2b
+llama3.2:3b
+gemma3:4b
